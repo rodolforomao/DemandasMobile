@@ -35,7 +35,7 @@ class _MenuView extends State<MenuView> {
               end: Alignment.centerRight,
               colors: <Color>[
                 Color(0xFF015175),
-                Color(0xFF0174a8),
+                Color(0xFF1a81b0),
               ],
             ),
           ),
@@ -71,7 +71,7 @@ class _MenuView extends State<MenuView> {
                               'Demandas',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                  fontSize: 20.0,
+                                  fontSize: 22.0,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF000000)),
                             ),
@@ -79,11 +79,10 @@ class _MenuView extends State<MenuView> {
                               height: 8.0,
                             ),
                             Text(
-                              'is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley',
+                              'is simply dummy text of the printing and typesetting industry simply printing',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontSize: 17.0,
-                                  fontWeight: FontWeight.bold,
                                   color: Color(0xFF000000)),
                             ),
                           ],
@@ -108,7 +107,7 @@ class _MenuView extends State<MenuView> {
                               'Anotações',
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                  fontSize: 20.0,
+                                  fontSize: 22.0,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF000000)),
                             ),
@@ -116,11 +115,10 @@ class _MenuView extends State<MenuView> {
                               height: 8.0,
                             ),
                             Text(
-                              'is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley',
+                              'is simply dummy text of the printing and typesetting industry simply printing',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   fontSize: 17.0,
-                                  fontWeight: FontWeight.bold,
                                   color: Color(0xFF000000)),
                             ),
                           ],

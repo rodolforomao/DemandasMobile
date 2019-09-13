@@ -84,7 +84,7 @@ class _MenuNavigationBarDemandas extends State<MenuNavigationBarDemandas> {
               end: Alignment.centerRight,
               colors: <Color>[
                 Color(0xFF015175),
-                Color(0xFF0174a8),
+                Color(0xFF1a81b0),
               ],
             ),
           ),

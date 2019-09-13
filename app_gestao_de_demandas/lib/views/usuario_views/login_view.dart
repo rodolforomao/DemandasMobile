@@ -195,26 +195,7 @@ class _LoginView  extends State<LoginView> with TickerProviderStateMixin {
                                       ),
                                     ),
                                     _RealizarLogin(),
-                                    Container(
-                                      padding: EdgeInsets.only(
-                                          top: 15.0, left: 20.0),
-                                      child: InkWell(
-                                        child: Text(
-                                          'Esqueci minha senha',
-                                          style: TextStyle(
-                                            fontWeight:
-                                            FontWeight.bold,
-                                            color: Color(0xFF253953),
-                                            fontSize: 17,
-                                          ),
-                                        ),
-                                        onTap: () {
-                                          Navigator.push(context, new MaterialPageRoute(
-                                              builder: (context) =>
-                                              new RecuperarSenhaView()));
-                                        },
-                                      ),
-                                    ),
+
                                     SizedBox(
                                       height: 15.0,
                                     ),
@@ -287,6 +268,7 @@ class _LoginView  extends State<LoginView> with TickerProviderStateMixin {
                 borderRadius: new BorderRadius.circular(4.0),
                 gradient: new LinearGradient(
                     colors: [
+                      
                       Color(0xFF015175),
                       Color(0xFF0174a8),
                     ]

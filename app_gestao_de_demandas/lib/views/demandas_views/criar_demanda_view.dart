@@ -1,41 +1,63 @@
-
+import 'dart:core';
+import 'package:intl/intl.dart';
+import 'package:app_gestao_de_demandas/views/ajuda/componentes.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:intl/intl.dart';
-
 
 class CriarDemandaView extends StatefulWidget {
-
-
   //RodoviaView({Key key, this.rodoviaSelecionada ,  @required this.usuarioLogado}) : super(key: key);
 
   @override
   _CriarDemandaView createState() => _CriarDemandaView();
 }
 
-class _CriarDemandaView extends State<CriarDemandaView> with TickerProviderStateMixin {
+class _CriarDemandaView extends State<CriarDemandaView>
+    with TickerProviderStateMixin {
   final _ScaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<FormState> _FormKey = GlobalKey<FormState>();
+  DateTime _DataSelecionada = DateTime.now();
 
   //AppDynatestCirBll _AppDynatestCirBll = new AppDynatestCirBll();
   // List<TbRodovia> ListaRodoviaModelo = new List<TbRodovia>();
   AnimationController animationController;
   Animation<double> animation;
 
-  String _TxtDropUf, _TxtPista, _TxtSentido, _TxtPavimentacao = null;
-  TextEditingController _TxtControllerRodovia = TextEditingController();
+  String _TxtDropUf, _TxtBr, _TxtContrato;
+  TextEditingController _TxtControllerDataDeRecebimento =
+      TextEditingController();
   TextEditingController _TxtControllerFaixa = TextEditingController();
   TextEditingController _TxtControllerData = TextEditingController();
   TextEditingController _TxtControllerKmInicio = TextEditingController();
   TextEditingController _TxtControllerKmFinal = TextEditingController();
 
-  bool _Validate = false, ExisteInformacao ,_IsNovo = true;
-  List<String> Uf = new List<String>();
-  List<String> Pista = new List<String>();
-  List<String> Sentido = new List<String>();
-  List<String>  Pavimentacao = new List<String>();
+  bool _Validate = false, ExisteInformacao, _IsNovo = true;
+  List<String> onListaUf = new List<String>();
+  List<String> onListaBr = new List<String>();
+  List<String> onListContrato = new List<String>();
 
+  Future<Null> OnSelecioneDataDeRecebimento(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+      context: context,
+      initialDate: new DateTime.now(),
+      firstDate: new DateTime.now().subtract(new Duration(days: 30)),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != _DataSelecionada)
+      setState(() {
+        _DataSelecionada = picked;
+        print(picked);
+      });
+  }
 
+  Future _selectDate() async {
+    DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: new DateTime.now(),
+        firstDate: new DateTime(2016),
+        lastDate: new DateTime(2019));
+    if (picked != null)
+      setState(() => _TxtControllerDataDeRecebimento.text = picked.toString());
+  }
 
   OnRealizandoOperacao(BuildContext context) {
     showDialog(
@@ -128,23 +150,30 @@ class _CriarDemandaView extends State<CriarDemandaView> with TickerProviderState
     _ScaffoldKey.currentState.showSnackBar(snackBar);
   }
 
-
-
-
-
+  Inc() async {
+    onListaUf = await Componentes.onListaUF() as List<String>;
+    onListaBr = await Componentes.onListaUF() as List<String>;
+    onListContrato = await Componentes.onListaUF() as List<String>;
+    setState(() {
+      _TxtBr = onListaUf.first;
+      _TxtContrato = onListaUf.first;
+      _TxtDropUf = onListaUf.first;
+      //_TxtControllerDataDeRecebimento.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
+    });
+  }
 
   @override
   void initState() {
-
     animationController = new AnimationController(
         vsync: this, duration: new Duration(milliseconds: 500));
     CurvedAnimation curve =
-    CurvedAnimation(parent: animationController, curve: Curves.decelerate);
+        CurvedAnimation(parent: animationController, curve: Curves.decelerate);
     animation = Tween(begin: 0.0, end: 1.0).animate(curve);
     super.initState();
 
     new Future.delayed(Duration.zero, () {});
     animationController.forward();
+    Inc();
   }
 
   @override
@@ -157,13 +186,17 @@ class _CriarDemandaView extends State<CriarDemandaView> with TickerProviderState
     return new Scaffold(
       key: _ScaffoldKey,
       appBar: AppBar(
-        title: Center(child:Text("Demanda",
-          style: TextStyle(
-            fontFamily: 'Roboto',
-            fontSize: 25.0,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),) ,),
+        title: Center(
+          child: Text(
+            "Demanda",
+            style: TextStyle(
+              fontFamily: 'Roboto',
+              fontSize: 25.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -171,7 +204,7 @@ class _CriarDemandaView extends State<CriarDemandaView> with TickerProviderState
               end: Alignment.centerRight,
               colors: <Color>[
                 Color(0xFF015175),
-                Color(0xFF0174a8),
+                Color(0xFF1a81b0),
               ],
             ),
           ),
@@ -181,10 +214,9 @@ class _CriarDemandaView extends State<CriarDemandaView> with TickerProviderState
         ),
         textTheme: TextTheme(
             title: TextStyle(
-              color: Colors.white,
-              fontSize: 20.0,
-            )
-        ),
+          color: Colors.white,
+          fontSize: 20.0,
+        )),
       ),
       body: Form(
         key: _FormKey,
@@ -201,443 +233,505 @@ class _CriarDemandaView extends State<CriarDemandaView> with TickerProviderState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    'UF*',
-                    textAlign: TextAlign.start,
+                    'N. Processo SEI*',
+                    textAlign: TextAlign.left,
                     style: TextStyle(
-                      fontFamily: 'Roboto_Regular',
-                      fontSize: 12.0,
-                      color: Colors.black,
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF000000),
                     ),
                   ),
-                  StreamBuilder<String>(
-                    builder: (context, snapshot) => FormField(
-                      builder: (FormFieldState state) {
-                        return InputDecorator(
-                          decoration: InputDecoration(
-                              labelStyle:
-                              TextStyle(color: Color(0xFF040006)),
-                              enabledBorder: new UnderlineInputBorder(
-                                  borderSide: new BorderSide(
+                  SizedBox(height: 10.0),
+                  Container(
+                    height: 55.0,
+                    padding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+                    decoration: new BoxDecoration(
+                        color: Color(0xFFdddddd),
+                        borderRadius: new BorderRadius.circular(4.0)),
+                    child: DropdownButtonHideUnderline(
+                      child: ButtonTheme(
+                        alignedDropdown: true,
+                        child: DropdownButton(
+                          isExpanded: true,
+                          value: _TxtDropUf,
+                          items: onListaUf.map((String value) {
+                            return new DropdownMenuItem(
+                              value: value,
+                              child: Text("${value}",
+                                  style: TextStyle(
+                                      fontFamily: 'Roboto',
+                                      fontSize: 20.0,
                                       color: Color(0xFF040006))),
-                              hintText: "Selecione...",
-                              fillColor: Color(0xFF040006),
-                              errorText: snapshot.error),
-                          child: new DropdownButtonHideUnderline(
-                            child: new DropdownButton<String>(
-                                isExpanded: true,
-                                value: _TxtDropUf,
-                                isDense: true,
-                                items: Uf.map((String value) {
-                                  return new DropdownMenuItem(
-                                    value: value,
-                                    child:  Text("${value}",
-                                        style: TextStyle(
-                                            fontFamily:
-                                            'Roboto_Regular',
-                                            fontSize: 20.0,
-                                            color:
-                                            Color(0xFF040006))),);
-                                }).toList(),
-                                onChanged: (String value) {
-                                  setState(() {
-                                    _TxtDropUf = value;
-                                  });
-                                }),
-                          ),
-                        );
-                      },
-                      enabled: _IsNovo,
+                            );
+                          }).toList(),
+                          onChanged: (String value) {
+                            setState(() {
+                              _TxtDropUf = value;
+                            });
+                          },
+                        ),
+                      ),
                     ),
                   ),
                   SizedBox(height: 20.0),
                   Text(
-                    'Rodovia*',
-                    textAlign: TextAlign.start,
+                    'Coordenação/Área*',
+                    textAlign: TextAlign.left,
                     style: TextStyle(
-                      fontFamily: 'Roboto_Regular',
-                      fontSize: 13.0,
-                      color: Colors.black,
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF000000),
                     ),
                   ),
-                  StreamBuilder<String>(
-                    //  stream: bloc.password,
-                    builder: (context, snapshot) => TextFormField(
-                      validator: (String arg) {
-                        if (arg.isEmpty)
-                          return 'Por favor, preencher a rodovia';
-                        else
-                          return null;
-                      },
-                      onSaved: (String val) {
-                        _TxtControllerRodovia.text = val;
-                      },
-                      maxLines: 1,
-                      controller: _TxtControllerRodovia,
-                      autofocus: false,
-                      enabled: _IsNovo,
-                      maxLength: 3,
-                      style: TextStyle(
-                          fontSize: 17, color: const Color(0xFF040006)),
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                          prefixIcon: Padding(
-                              padding:
-                              EdgeInsets.fromLTRB(0.0, 10.0, 5.0, 0.0),
-                              child: Text(
-                                "BR - ",
-                                textAlign: TextAlign.start,
-                                style: TextStyle(
-                                  fontFamily: 'Roboto_Bold',
-                                  fontSize: 18.0,
-                                  color: Colors.black,
+                  SizedBox(height: 10.0),
+                  Container(
+                    height: 55.0,
+                    padding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+                    decoration: new BoxDecoration(
+                        color: Color(0xFFdddddd),
+                        borderRadius: new BorderRadius.circular(4.0)),
+                    child: DropdownButtonHideUnderline(
+                      child: ButtonTheme(
+                        alignedDropdown: true,
+                        child: DropdownButton(
+                          isExpanded: true,
+                          value: _TxtBr,
+                          items: onListaBr.map((String value) {
+                            return new DropdownMenuItem(
+                              value: value,
+                              child: Text("${value}",
+                                  style: TextStyle(
+                                      fontFamily: 'Roboto',
+                                      fontSize: 20.0,
+                                      color: Color(0xFF040006))),
+                            );
+                          }).toList(),
+                          onChanged: (String value) {
+                            setState(() {
+                              _TxtBr = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                  Text(
+                    'Prioridade*',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF000000),
+                    ),
+                  ),
+                  SizedBox(height: 10.0),
+                  Container(
+                    height: 55.0,
+                    padding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+                    decoration: new BoxDecoration(
+                        color: Color(0xFFdddddd),
+                        borderRadius: new BorderRadius.circular(4.0)),
+                    child: DropdownButtonHideUnderline(
+                      child: ButtonTheme(
+                        alignedDropdown: true,
+                        child: DropdownButton(
+                          isExpanded: true,
+                          value: _TxtContrato,
+                          items: onListContrato.map((String value) {
+                            return new DropdownMenuItem(
+                              value: value,
+                              child: Text("${value}",
+                                  style: TextStyle(
+                                      fontFamily: 'Roboto',
+                                      fontSize: 20.0,
+                                      color: Color(0xFF040006))),
+                            );
+                          }).toList(),
+                          onChanged: (String value) {
+                            setState(() {
+                              _TxtContrato = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                  Text(
+                    'Data de Recebimento*',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF000000),
+                    ),
+                  ),
+                  SizedBox(height: 10.0),
+                  InkWell(
+                    onTap: () {
+                      OnSelecioneDataDeRecebimento(context);
+                    },
+                    child: Container(
+                      height: 55.0,
+                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
+                      decoration: new BoxDecoration(
+                          color: Color(0xFFdddddd),
+                          borderRadius: new BorderRadius.circular(4.0)),
+                      child: new Center(
+                        child: TextFormField(
+                          textInputAction: TextInputAction.next,
+                          controller: _TxtControllerDataDeRecebimento,
+                          autofocus: false,
+                          style: TextStyle(
+                              fontSize: 20, color: const Color(0xFF000000)),
+                          keyboardType: TextInputType.text,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintStyle: TextStyle(
+                              fontSize: 15,
+                              color: const Color(0xFF4b5367),
+                            ),
+                            hintText: "Data de Recebimento",
+                            fillColor: Color(0xFF4b5367),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                  Text(
+                    'Assunto*',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF000000),
+                    ),
+                  ),
+                  SizedBox(height: 10.0),
+                  Container(
+                    height: 55.0,
+                    padding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+                    decoration: new BoxDecoration(
+                        color: Color(0xFFdddddd),
+                        borderRadius: new BorderRadius.circular(4.0)),
+                    child: DropdownButtonHideUnderline(
+                      child: ButtonTheme(
+                        alignedDropdown: true,
+                        child: DropdownButton(
+                          isExpanded: true,
+                          value: _TxtContrato,
+                          items: onListContrato.map((String value) {
+                            return new DropdownMenuItem(
+                              value: value,
+                              child: Text("${value}",
+                                  style: TextStyle(
+                                      fontFamily: 'Roboto',
+                                      fontSize: 20.0,
+                                      color: Color(0xFF040006))),
+                            );
+                          }).toList(),
+                          onChanged: (String value) {
+                            setState(() {
+                              _TxtContrato = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                  Text(
+                    'Prazo*',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF000000),
+                    ),
+                  ),
+                  SizedBox(height: 10.0),
+                  InkWell(
+                    onTap: () {
+                      OnSelecioneDataDeRecebimento(context);
+                    },
+                    child: Container(
+                      height: 55.0,
+                      padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
+                      decoration: new BoxDecoration(
+                          color: Color(0xFFdddddd),
+                          borderRadius: new BorderRadius.circular(4.0)),
+                      child: new Center(
+                        child: TextFormField(
+                          textInputAction: TextInputAction.next,
+                          controller: _TxtControllerDataDeRecebimento,
+                          autofocus: false,
+                          style: TextStyle(
+                              fontSize: 20, color: const Color(0xFF000000)),
+                          keyboardType: TextInputType.text,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintStyle: TextStyle(
+                              fontSize: 15,
+                              color: const Color(0xFF4b5367),
+                            ),
+                            hintText: "Prazo",
+                            fillColor: Color(0xFF4b5367),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.0),
+                  Container(
+                    child: Card(
+                        child: Padding(
+                            padding:
+                            EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  'Contrato*',
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF000000),
+                                  ),
                                 ),
-                              )),
-                          labelStyle: TextStyle(color: Color(0xFF040006)),
-                          enabledBorder: new UnderlineInputBorder(
-                              borderSide:
-                              new BorderSide(color: Color(0xFF040006))),
-                          fillColor: Color(0xFF040006),
-                          errorText: snapshot.error),
-                    ),
+                                SizedBox(height: 10.0),
+                                Container(
+                                  height: 55.0,
+                                  padding: EdgeInsets.fromLTRB(
+                                      10.0, 0.0, 0.0, 0.0),
+                                  decoration: new BoxDecoration(
+                                      color: Color(0xFFdddddd),
+                                      borderRadius:
+                                      new BorderRadius.circular(4.0)),
+                                  child: DropdownButtonHideUnderline(
+                                    child: ButtonTheme(
+                                      alignedDropdown: true,
+                                      child: DropdownButton(
+                                        isExpanded: true,
+                                        value: _TxtContrato,
+                                        items: onListContrato
+                                            .map((String value) {
+                                          return new DropdownMenuItem(
+                                            value: value,
+                                            child: Text("${value}",
+                                                style: TextStyle(
+                                                    fontFamily: 'Roboto',
+                                                    fontSize: 20.0,
+                                                    color:
+                                                    Color(0xFF040006))),
+                                          );
+                                        }).toList(),
+                                        onChanged: (String value) {
+                                          setState(() {
+                                            _TxtContrato = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 20.0),
+                                Text(
+                                  'Rodovia*',
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF000000),
+                                  ),
+                                ),
+                                SizedBox(height: 10.0),
+                                Container(
+                                  height: 55.0,
+                                  padding: EdgeInsets.fromLTRB(
+                                      10.0, 0.0, 0.0, 0.0),
+                                  decoration: new BoxDecoration(
+                                      color: Color(0xFFdddddd),
+                                      borderRadius:
+                                      new BorderRadius.circular(4.0)),
+                                  child: DropdownButtonHideUnderline(
+                                    child: ButtonTheme(
+                                      alignedDropdown: true,
+                                      child: DropdownButton(
+                                        isExpanded: true,
+                                        value: _TxtContrato,
+                                        items: onListContrato
+                                            .map((String value) {
+                                          return new DropdownMenuItem(
+                                            value: value,
+                                            child: Text("${value}",
+                                                style: TextStyle(
+                                                    fontFamily: 'Roboto',
+                                                    fontSize: 20.0,
+                                                    color:
+                                                    Color(0xFF040006))),
+                                          );
+                                        }).toList(),
+                                        onChanged: (String value) {
+                                          setState(() {
+                                            _TxtContrato = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 20.0),
+                                Text(
+                                  'UF*',
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF000000),
+                                  ),
+                                ),
+                                SizedBox(height: 10.0),
+                                Container(
+                                  height: 55.0,
+                                  padding: EdgeInsets.fromLTRB(
+                                      10.0, 0.0, 0.0, 0.0),
+                                  decoration: new BoxDecoration(
+                                      color: Color(0xFFdddddd),
+                                      borderRadius:
+                                      new BorderRadius.circular(4.0)),
+                                  child: DropdownButtonHideUnderline(
+                                    child: ButtonTheme(
+                                      alignedDropdown: true,
+                                      child: DropdownButton(
+                                        isExpanded: true,
+                                        value: _TxtContrato,
+                                        items: onListContrato
+                                            .map((String value) {
+                                          return new DropdownMenuItem(
+                                            value: value,
+                                            child: Text("${value}",
+                                                style: TextStyle(
+                                                    fontFamily: 'Roboto',
+                                                    fontSize: 20.0,
+                                                    color:
+                                                    Color(0xFF040006))),
+                                          );
+                                        }).toList(),
+                                        onChanged: (String value) {
+                                          setState(() {
+                                            _TxtContrato = value;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 20.0),
+                                StreamBuilder<bool>(
+                                  builder: (context, snapshot) => Padding(
+                                    padding: EdgeInsets.only(
+                                        left: 0.0, top: 20.0, bottom: 20.0),
+                                    child: new InkWell(
+                                      child: new Container(
+                                        //width: 100.0,
+                                        height: 53.0,
+                                        decoration: new BoxDecoration(
+                                            borderRadius:
+                                            new BorderRadius.circular(
+                                                4.0),
+                                            gradient:
+                                            new LinearGradient(colors: [
+                                              Color(0xFF015175),
+                                              Color(0xFF0174a8),
+                                            ]),
+                                            boxShadow: [
+                                              new BoxShadow(
+                                                color: Colors.grey[500],
+                                                blurRadius: 0.0,
+                                                spreadRadius: 0.0,
+                                              )
+                                            ]),
+                                        child: new Center(
+                                          child: Text(
+                                            '+ Contrato',
+                                            style: TextStyle(
+                                              fontFamily: 'Roboto',
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 22.0,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      onTap: () {
+                                        FocusScope.of(context)
+                                            .requestFocus(new FocusNode());
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ))),
                   ),
-                  SizedBox(height: 5.0),
+                  SizedBox(height: 25.0),
                   Text(
-                    'Pista*',
-                    textAlign: TextAlign.start,
+                    'Descrição*',
+                    textAlign: TextAlign.left,
                     style: TextStyle(
-                      fontFamily: 'Roboto_Regular',
-                      fontSize: 13.0,
-                      color: Colors.black,
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF000000),
                     ),
                   ),
-                  StreamBuilder<String>(
-                    builder: (context, snapshot) => FormField(
-                      builder: (FormFieldState state) {
-                        return InputDecorator(
-                          decoration: InputDecoration(
-                              labelStyle:
-                              TextStyle(color: Color(0xFF040006)),
-                              enabledBorder: new UnderlineInputBorder(
-                                  borderSide: new BorderSide(
-                                      color: Color(0xFF040006))),
-                              hintText: "Selecione...",
-                              enabled: _IsNovo,
-                              fillColor: Color(0xFF040006),
-                              errorText: snapshot.error),
-                          child: new DropdownButtonHideUnderline(
-                            child: new DropdownButton<String>(
-                                isExpanded: false,
-                                value: _TxtPista,
-                                isDense: true,
-                                items: Pista.map((String value) {
-                                  return new DropdownMenuItem(
-                                    value: value,
-                                    child:  Text("${value}",
-                                        style: TextStyle(
-                                            fontFamily:
-                                            'Roboto_Regular',
-                                            fontSize: 20.0,
-                                            color:
-                                            Color(0xFF040006))),);
-                                }).toList(),
-                                onChanged: (String value) {
-                                  setState(() {
-                                    _TxtPista = value;
-                                  });
-                                }),
+                  SizedBox(height: 10.0),
+                  Container(
+                    height: 100.0,
+                    padding: EdgeInsets.fromLTRB(20.0, 0.0, 0.0, 0.0),
+                    decoration: new BoxDecoration(
+                        color: Color(0xFFdddddd),
+                        borderRadius: new BorderRadius.circular(4.0)),
+                    child: new Center(
+                      child: TextFormField(
+                        textInputAction: TextInputAction.next,
+                        controller: _TxtControllerDataDeRecebimento,
+                        autofocus: false,
+                        maxLength: 8,
+                        style: TextStyle(
+                            fontSize: 20, color: const Color(0xFF000000)),
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(
+                            fontSize: 15,
+                            color: const Color(0xFF4b5367),
                           ),
-                        );
-                      },
+                          fillColor: Color(0xFF4b5367),
+                        ),
+                      ),
                     ),
                   ),
-                  SizedBox(height: 20.0),
-                  Text(
-                    'Faixa*',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontFamily: 'Roboto_Regular',
-                      fontSize: 13.0,
-                      color: Colors.black,
-                    ),
-                  ),
-                  StreamBuilder<String>(
-                    //  stream: bloc.password,
-                    builder: (context, snapshot) => TextFormField(
-                      validator: (String arg) {
-                        if (arg.isEmpty)
-                          return 'Por favor, preencher a faixa';
-                        else
-                          return null;
-                      },
-                      onSaved: (String val) {
-                        _TxtControllerFaixa.text = val;
-                      },
-                      autofocus: false,
-                      enabled: _IsNovo,
-                      maxLength: 4,
-                      controller: _TxtControllerFaixa,
-                      style: TextStyle(
-                          fontSize: 17, color: const Color(0xFF423e3e)),
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                          labelStyle: TextStyle(color: Color(0xFF423e3e)),
-                          enabledBorder: new UnderlineInputBorder(
-                              borderSide:
-                              new BorderSide(color: Color(0xFF040006))),
-                          hintText: "Faixa",
-                          fillColor: Color(0xFF040006),
-                          errorText: snapshot.error),
-                    ),
-                  ),
-                  SizedBox(height: 20.0),
-                  Text(
-                    'Sentido*',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontFamily: 'Roboto_Regular',
-                      fontSize: 13.0,
-                      color: Colors.black,
-                    ),
-                  ),
-                  StreamBuilder<String>(
-                    builder: (context, snapshot) => FormField(
-                      builder: (FormFieldState state) {
-                        return InputDecorator(
-                          decoration: InputDecoration(
-                              labelStyle:
-                              TextStyle(color: Color(0xFF040006)),
-                              enabledBorder: new UnderlineInputBorder(
-                                  borderSide: new BorderSide(
-                                      color: Color(0xFF040006))),
-                              hintText: "Selecione...",
-                              enabled: _IsNovo,
-                              fillColor: Color(0xFF040006),
-                              errorText: snapshot.error),
-                          child: new DropdownButtonHideUnderline(
-                            child: new DropdownButton<String>(
-                                isExpanded: false,
-                                value: _TxtSentido,
-                                isDense: true,
-                                items: Sentido.map((String value) {
-                                  return new DropdownMenuItem(
-                                    value: value,
-                                    child:  Text("${value}",
-                                        style: TextStyle(
-                                            fontFamily:
-                                            'Roboto_Regular',
-                                            fontSize: 20.0,
-                                            color:
-                                            Color(0xFF040006))),);
-                                }).toList(),
-                                onChanged: (String value) {
-                                  setState(() {
-                                    _TxtSentido = value;
-                                  });
-                                }),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  SizedBox(height: 20.0),
-                  Text(
-                    'Pavimentação*',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontFamily: 'Roboto_Regular',
-                      fontSize: 13.0,
-                      color: Colors.black,
-                    ),
-                  ),
-                  StreamBuilder<String>(
-                    builder: (context, snapshot) => FormField(
-                      builder: (FormFieldState state) {
-                        return InputDecorator(
-                          decoration: InputDecoration(
-                              labelStyle:
-                              TextStyle(color: Color(0xFF040006)),
-                              enabledBorder: new UnderlineInputBorder(
-                                  borderSide: new BorderSide(
-                                      color: Color(0xFF040006))),
-                              hintText: "Selecione...",
-                              enabled: _IsNovo,
-                              fillColor: Color(0xFF040006),
-                              errorText: snapshot.error),
-                          child: new DropdownButtonHideUnderline(
-                            child: new DropdownButton<String>(
-                                isExpanded: false,
-                                value: _TxtPavimentacao,
-                                isDense: true,
-                                items: Pavimentacao.map((String value) {
-                                  return new DropdownMenuItem(
-                                    value: value,
-                                    child:  Text("${value}",
-                                        style: TextStyle(
-                                            fontFamily:
-                                            'Roboto_Regular',
-                                            fontSize: 20.0,
-                                            color:
-                                            Color(0xFF040006))),);
-                                }).toList(),
-                                onChanged: (String value) {
-                                  setState(() {
-                                    _TxtPavimentacao = value;
-                                  });
-                                }),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  SizedBox(height: 20.0),
-                  Text(
-                    'Data*',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontFamily: 'Roboto_Regular',
-                      fontSize: 13.0,
-                      color: Colors.black,
-                    ),
-                  ),
-                  StreamBuilder<String>(
-                    //  stream: bloc.password,
-                    builder: (context, snapshot) => TextFormField(
-                      validator: (String arg) {
-                        if (arg.isEmpty)
-                          return 'Por favor, preencher a data';
-                        else
-                          return null;
-                      },
-                      onSaved: (String val) {
-                        _TxtControllerData.text = val;
-                      },
-                      autofocus: false,
-                      enabled: false,
-                      controller: _TxtControllerData,
-                      style: TextStyle(
-                          fontSize: 17, color: const Color(0xFF423e3e)),
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                          prefixIcon: const Icon(
-                            Icons.calendar_today,
-                            size: 25,
-                            color: Color(0xFF040006),
-                          ),
-                          labelStyle: TextStyle(color: Color(0xFF423e3e)),
-                          enabledBorder: new UnderlineInputBorder(
-                              borderSide:
-                              new BorderSide(color: Color(0xFF040006))),
-                          hintText: "Data*",
-                          fillColor: Color(0xFF040006),
-                          errorText: snapshot.error),
-                    ),
-                  ),
-                  SizedBox(height: 20.0),
-                  Text(
-                    'Km*',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontFamily: 'Roboto_Regular',
-                      fontSize: 13.0,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-                            child: StreamBuilder<String>(
-                              //  stream: bloc.password,
-                              builder: (context, snapshot) => TextFormField(
-                                validator: (String arg) {
-                                  if (arg.isEmpty)
-                                    return 'Por favor, preencher km inicial';
-                                  else
-                                    return null;
-                                },
-                                onSaved: (String val) {
-                                  _TxtControllerKmInicio.text = val;
-                                },
-                                maxLines: 1,
-                                enabled: _IsNovo,
-                                controller: _TxtControllerKmInicio,
-                                autofocus: false,
-                                style: TextStyle(
-                                    fontSize: 17,
-                                    color: const Color(0xFF423e3e)),
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                    labelStyle:
-                                    TextStyle(color: Color(0xFF423e3e)),
-                                    enabledBorder: new UnderlineInputBorder(
-                                        borderSide: new BorderSide(
-                                            color: Color(0xFF040006))),
-                                    hintText: "KM Inicial*",
-                                    fillColor: Color(0xFF040006),
-                                    errorText: snapshot.error),
-                              ),
-                            ),
-                          )),
-                      Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
-                            child: StreamBuilder<String>(
-                              //  stream: bloc.password,
-                              builder: (context, snapshot) => TextFormField(
-                                validator: (String arg) {
-                                  if (arg.isEmpty)
-                                    return 'Por favor, preencher km final';
-                                  else
-                                    return null;
-                                },
-                                onSaved: (String val) {
-                                  _TxtControllerKmFinal.text = val;
-                                },
-                                maxLines: 1,
-                                enabled: _IsNovo,
-                                controller: _TxtControllerKmFinal,
-                                autofocus: false,
-                                style: TextStyle(
-                                    fontSize: 17,
-                                    color: const Color(0xFF423e3e)),
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                    labelStyle:
-                                    TextStyle(color: Color(0xFF423e3e)),
-                                    enabledBorder: new UnderlineInputBorder(
-                                        borderSide: new BorderSide(
-                                            color: Color(0xFF040006))),
-                                    hintText: "KM final*",
-                                    fillColor: Color(0xFF040006),
-                                    errorText: snapshot.error),
-                              ),
-                            ),
-                          )),
-                    ],
-                  ),
+                  SizedBox(height: 25.0),
                 ],
               ),
             ),
           ), /* add child content here */
         ),
       ),
-      floatingActionButton: _IsNovo == true ? FittedBox(
-        child: FloatingActionButton(
-          backgroundColor: Color(0xFF3497FD),
-          onPressed: () {
-
-          },
-          child: Icon(
-            Icons.check,
-            color: Color(0xFFFFFFFF),
-          ),
-        ),
-      ) : null,
+      floatingActionButton: _IsNovo == true
+          ? FittedBox(
+              child: FloatingActionButton(
+                backgroundColor: Color(0xFF3497FD),
+                onPressed: () {},
+                child: Icon(
+                  Icons.check,
+                  color: Color(0xFFFFFFFF),
+                ),
+              ),
+            )
+          : null,
     );
   }
 }
-
-
-
-
