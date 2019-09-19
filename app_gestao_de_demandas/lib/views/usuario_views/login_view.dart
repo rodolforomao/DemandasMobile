@@ -268,7 +268,7 @@ class _LoginView  extends State<LoginView> with TickerProviderStateMixin {
                 borderRadius: new BorderRadius.circular(4.0),
                 gradient: new LinearGradient(
                     colors: [
-                      
+
                       Color(0xFF015175),
                       Color(0xFF0174a8),
                     ]
